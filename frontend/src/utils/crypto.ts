@@ -215,3 +215,69 @@ export async function encryptPayload(
     encryptedAesKeyBase64: arrayBufferToBase64(encryptedAesKey),
   };
 }
+
+/**
+ * Hybrid encryption with a pre-generated external AES key.
+ * Use this when the same AES key must encrypt both the message and attached files.
+ */
+export async function encryptPayloadWithKey(
+  text: string,
+  publicKey: CryptoKey,
+  rawAesKey: Uint8Array,
+): Promise<HybridEncryptedPayload> {
+  if (!globalThis.crypto?.subtle) {
+    throw new CryptoError("Web Crypto API is unavailable.");
+  }
+
+  const trimmed = text.trim();
+  if (!trimmed) {
+    throw new CryptoError("Cannot encrypt an empty message.");
+  }
+
+  if (rawAesKey.length !== 32) {
+    throw new CryptoError("AES key must be 32 bytes (AES-256).");
+  }
+
+  assertEncryptPublicKey(publicKey);
+
+  // Import the external raw AES key
+  const aesKey = await crypto.subtle.importKey(
+    "raw",
+    rawAesKey,
+    { name: "AES-GCM" },
+    false,
+    ["encrypt"],
+  );
+
+  const iv = crypto.getRandomValues(new Uint8Array(GCM_IV_LENGTH));
+  const plaintext = new TextEncoder().encode(trimmed);
+
+  let encryptedPayload: ArrayBuffer;
+  let encryptedAesKey: ArrayBuffer;
+
+  try {
+    encryptedPayload = await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv },
+      aesKey,
+      plaintext,
+    );
+  } catch (err) {
+    throw new CryptoError("AES-GCM encryption failed.", { cause: err });
+  }
+
+  try {
+    encryptedAesKey = await crypto.subtle.encrypt(
+      { name: "RSA-OAEP" },
+      publicKey,
+      rawAesKey,
+    );
+  } catch (err) {
+    throw new CryptoError("RSA-OAEP key wrapping failed.", { cause: err });
+  }
+
+  return {
+    encryptedPayloadBase64: arrayBufferToBase64(encryptedPayload),
+    ivBase64: arrayBufferToBase64(iv),
+    encryptedAesKeyBase64: arrayBufferToBase64(encryptedAesKey),
+  };
+}
