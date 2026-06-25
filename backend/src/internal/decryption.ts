@@ -82,7 +82,7 @@ export function decryptPayload(
     "encryptedPayloadBase64",
   );
 
-  if (encryptedData.length <= GCM_AUTH_TAG_LENGTH) {
+  if (encryptedData.length < GCM_AUTH_TAG_LENGTH) {
     throw new DecryptionError("Encrypted payload is too short to contain a GCM auth tag.");
   }
 
