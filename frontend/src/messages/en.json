@@ -1,0 +1,54 @@
+{
+  "app": {
+    "title": "Anonymous Reporter — Zero-Trust Anonymous Reporting System",
+    "description": "Republic of Armenia Ministry of Justice"
+  },
+  "nav": {
+    "home": "Home",
+    "track": "Track Report"
+  },
+  "report": {
+    "title": "Submit Anonymous Report",
+    "subtitle": "Your identity is protected • All data is encrypted in the browser",
+    "messageLabel": "Report text",
+    "messagePlaceholder": "Describe the incident in as much detail as possible…",
+    "attachFile": "Attach image",
+    "removeFile": "Remove",
+    "destinationLabel": "Send to",
+    "destinations": {
+      "police": "Police",
+      "nss": "NSS",
+      "anti-corruption": "Anti-Corruption"
+    },
+    "submit": "Submit Report",
+    "submitting": "Submitting…",
+    "success": "Report submitted",
+    "trackingSeed": "Tracking code",
+    "trackingSeedHelp": "Save this code to check your report status",
+    "newReport": "New Report"
+  },
+  "errors": {
+    "emptyMessage": "Please enter a report message",
+    "encryptionNotReady": "Encryption is not ready. Please wait or refresh the page",
+    "keyNotConfigured": "Encryption key is not configured. Contact the administrator",
+    "invalidFileType": "Only JPEG and PNG images are accepted",
+    "fileTooLarge": "Image exceeds the 10 MB limit",
+    "uploadFailed": "Image upload failed",
+    "serverError": "Server error. Please try again later",
+    "networkError": "Network error. Check your connection and try again",
+    "tooManyRequests": "Too many requests. Please wait and try again",
+    "invalidPayload": "Invalid report",
+    "invalidDestination": "Invalid destination",
+    "internalRejected": "Report was rejected by the internal network",
+    "generic": "An unexpected error occurred. Please try again later"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "toggle": "Toggle theme"
+  },
+  "footer": {
+    "hedera": "Secured by Hedera Hashgraph",
+    "encryption": "E2EE Encryption • RSA-2048 + AES-256-GCM"
+  }
+}

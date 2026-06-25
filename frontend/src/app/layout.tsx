@@ -3,18 +3,19 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Anonymous Reporter",
-  description:
-    "Zero-trust encrypted reporting — submit tips without revealing your identity.",
+  description: "Zero-Trust Anonymous Reporting System",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body className="min-h-screen">{children}</body>
+    <html lang="hy" suppressHydrationWarning>
+      <body className="min-h-screen bg-white text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
+        {children}
+      </body>
     </html>
   );
 }
