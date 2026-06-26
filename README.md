@@ -53,7 +53,9 @@ Decryption and threat analysis occur exclusively on a simulated **air-gapped int
 | **Blind Proxy** | Node.js, Express 5, Helmet, CORS |
 | **Blockchain** | Hedera Hashgraph — Consensus Service (`@hashgraph/sdk`, Testnet) |
 | **Internal Node** | Node.js `crypto` (decryption), offline Edge AI keyword simulator |
+| **Secure Delivery** | **SimpleX Chat** — self-hosted SMP relay, zero-identifier bot bridge, agency alerting |
 | **Monorepo** | npm workspaces (`frontend` + `backend`) |
+| **Containerization** | Docker Compose — MinIO S3 + SimpleX SMP Relay |
 
 ---
 
@@ -98,13 +100,14 @@ anonymous-reporter/
 ├── backend/                     # Blind proxy + internal simulation
 │   ├── src/
 │   │   ├── routes/              # POST /api/submit-report
-│   │   ├── services/            # hedera.ts, forwardToInternalNetwork.ts
+│   │   ├── services/            # hedera.ts, forwardToInternalNetwork.ts, s3.ts, simplex.ts
 │   │   ├── internal/            # decryption.ts, edge-ai.ts, mock-server.ts
 │   │   └── middleware/          # stripMetadata.ts
 │   ├── scripts/
 │   │   ├── generate-keys.ts     # npm run setup:keys
-│   │   └── create-topic.ts      # npm run setup:topic
+│   │   �── create-topic.ts      # npm run setup:topic
 │   └── .env                     # Hedera credentials + LE private key
+├── docker-compose.yml           # MinIO S3 + SimpleX SMP Relay
 └── package.json                 # Monorepo root (npm workspaces)
 ```
 
@@ -224,6 +227,19 @@ npm run lint
 3. **Blind Proxy** receives ciphertext, strips all identifying metadata, and hashes the encrypted bundle.
 4. **Hedera HCS** records the hash on-chain; the citizen receives a **Tracking Seed**.
 5. **Internal Network** (async) decrypts the payload, runs offline Edge AI triage, and logs a dashboard alert.
+6. **SimpleX Bot Bridge** delivers the tracking seed as an encrypted alert to agency contacts via a self-hosted SMP relay — no identifiers, no metadata leakage.
+
+---
+
+## 🔐 SimpleX Chat Secure Alerting
+
+| Component | Purpose |
+|-----------|---------|
+| **SMP Relay** (`docker-compose.yml`) | Self-hosted message relay — zero dependency on external servers |
+| **Bot Bridge** (`backend/src/services/simplex.ts`) | Headless SimpleX Chat bot, singleton service |
+| **Alert Routing** | Post-HCS submission → tracking seed delivered to all connected agency contacts |
+| **Non-blocking** | SimpleX failure does not fail the report — best-effort delivery |
+| **License** | `simplex-chat` npm package used **unchanged** — AGPLv3 compliant |
 
 ---
 
