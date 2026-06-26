@@ -1,0 +1,13 @@
+# Anonymous_Reporter — Loop Pattern Registry
+
+patterns:
+  daily-triage:
+    name: "Daily Triage"
+    cadence: "1d"
+    level: L1
+    description: "CI health, Phase deadlines, SimpleX relay, AGPLv3 compliance"
+    state_file: STATE.md
+    skills:
+      - loop-triage
+    auto_fix: false
+    tool: hermes
