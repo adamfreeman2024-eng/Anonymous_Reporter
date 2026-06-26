@@ -32,8 +32,24 @@ app.use("/api/get-upload-url", strictLimiter, uploadRouter);
 
 import { closeHederaClient } from "./services/hedera.js";
 import { closeS3Client } from "./services/s3.js";
+import { getSimplexService } from "./services/simplex.js";
 
-process.on("SIGTERM", () => { console.info("[blind-proxy] SIGTERM — shutting down"); closeHederaClient(); closeS3Client(); process.exit(0); });
-process.on("SIGINT", () => { console.info("[blind-proxy] SIGINT — shutting down"); closeHederaClient(); closeS3Client(); process.exit(0); });
+process.on("SIGTERM", () => {
+  console.info("[blind-proxy] SIGTERM — shutting down");
+  closeHederaClient();
+  closeS3Client();
+  // SimpleX shutdown is async but we're exiting — fire and forget
+  const simplex = (() => { try { return getSimplexService(); } catch { return null; } })();
+  if (simplex) simplex.shutdown().catch(() => {});
+  process.exit(0);
+});
+process.on("SIGINT", () => {
+  console.info("[blind-proxy] SIGINT — shutting down");
+  closeHederaClient();
+  closeS3Client();
+  const simplex = (() => { try { return getSimplexService(); } catch { return null; } })();
+  if (simplex) simplex.shutdown().catch(() => {});
+  process.exit(0);
+});
 
 app.listen(PORT, () => { console.info(`[blind-proxy] Listening on http://localhost:${PORT} (${isProduction ? "production" : "development"})`); });

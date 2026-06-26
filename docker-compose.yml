@@ -18,6 +18,24 @@ services:
       timeout: 3s
       retries: 5
 
+  # ── SimpleX SMP Relay (self-hosted, zero identifiers) ──
+  smp-relay:
+    image: simplexchat/smp-server:latest
+    container_name: ar-smp-relay
+    ports:
+      - "${SMP_PORT:-5223}:5223"
+    volumes:
+      - smp_data:/etc/opt/simplex
+      - smp_logs:/var/opt/simplex
+    environment:
+      ADDR: ${SMP_ADDR:-localhost}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "smp-server", "status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
   # ── Bucket provisioning + lifecycle policy (one-shot) ──
   minio-init:
     image: minio/mc:latest
@@ -42,3 +60,5 @@ services:
 
 volumes:
   minio_data:
+  smp_data:
+  smp_logs:

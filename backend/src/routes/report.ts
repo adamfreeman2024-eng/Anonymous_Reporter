@@ -8,6 +8,11 @@ import {
   type EncryptedPayload,
 } from "../services/forwardToInternalNetwork.js";
 import { HederaServiceError, submitHashToHCS } from "../services/hedera.js";
+import {
+  hasSimplexService,
+  getSimplexService,
+  type AgencyChannel,
+} from "../services/simplex.js";
 
 const VALID_DESTINATIONS: Destination[] = [
   "police",
@@ -90,6 +95,25 @@ reportRouter.post("/", async (req: Request, res: Response) => {
       transactionId: hcsResult.transactionId,
       trackingSeed: `${hcsResult.consensusTimestamp}@${hcsResult.sequenceNumber}`,
     });
+
+    // �─ SimpleX alert: deliver tracking seed to agency contacts ──
+    if (hasSimplexService()) {
+      try {
+        const simplex = getSimplexService();
+        await simplex.sendAlert({
+          trackingSeed: `${hcsResult.consensusTimestamp}@${hcsResult.sequenceNumber}`,
+          destination: destination as AgencyChannel,
+          consensusTimestamp: hcsResult.consensusTimestamp,
+          payloadHash,
+        });
+        console.log(
+          `[simplex] Tracking seed sent for ${destination}: ${hcsResult.consensusTimestamp}`,
+        );
+      } catch (simplexErr) {
+        // SimpleX delivery is non-critical — don't fail the report
+        console.error("[simplex] Alert delivery error:", simplexErr);
+      }
+    }
   } catch (err) {
     if (err instanceof HederaServiceError) {
       console.error("[submit-report] Hedera error:", err.message);

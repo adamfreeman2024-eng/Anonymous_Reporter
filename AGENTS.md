@@ -93,10 +93,28 @@ Tests cover:
 | Phase | Status | Items |
 |-------|--------|-------|
 | 1: Security | 🟢 In Progress | Rate limiting, tests, ESLint, LICENSE, env separation |
-| 2: Armenia | ⬜ Pending | Հայերեն UI, Edge AI, agencies, legal compliance |
+| 2: Armenia | 🟡 Started | Հայերեն UI, Edge AI, agencies, **SimpleX Chat integration (tracking-seed delivery)** |
 | 3: Production | ⬜ Pending | Docker, CI/CD, air-gap separation, audit trail |
 | 4: Ministry | ⬜ Pending | Admin dashboard, manual, HSM, Mainnet migration |
 
 ---
 
-_Last updated: 2026-06-25 — started Phase 1_
+## SimpleX Chat Integration (Phase 2)
+
+**What:** Self-hosted SMP relay + headless bot bridge delivers tracking-seed alerts
+to agency contacts via SimpleX Chat — zero identifiers, zero metadata leakage.
+
+**Components:**
+- `docker-compose.yml` → `smp-relay` service (simplexchat/smp-server)
+- `backend/src/services/simplex.ts` → `SimplexService` (bot bridge, singleton)
+- `backend/src/index.ts` → graceful shutdown hooks for SimpleX
+- `backend/src/routes/report.ts` → alert delivery after HCS submission
+
+**Key constraint:** Non-blocking — SimpleX delivery failure must not fail the report.
+
+**AGPLv3 notice:** The `simplex-chat` npm package is used **unchanged**.
+No modifications are made to AGPLv3-licensed code.
+
+---
+
+_Last updated: 2026-06-26 — SimpleX integration added (Hermes ×@Mayis)_
