@@ -92,10 +92,10 @@ Tests cover:
 
 | Phase | Status | Items |
 |-------|--------|-------|
-| 1: Security | 🟢 In Progress | Rate limiting, tests, ESLint, LICENSE, env separation |
-| 2: Armenia | 🟡 Started | Հայերեն UI, Edge AI, agencies, **SimpleX Chat integration (tracking-seed delivery)** |
-| 3: Production | ⬜ Pending | Docker, CI/CD, air-gap separation, audit trail |
-| 4: Ministry | ⬜ Pending | Admin dashboard, manual, HSM, Mainnet migration |
+| 1: Security | 🟢 In Progress | **Jun 30** | Rate limiting, tests, ESLint, LICENSE, env separation |
+| 2: Armenia | 🟢 Complete | **Jun 26** ✅ | Հայերեն UI, Edge AI, agencies, SimpleX Chat |
+| 3: Production | 🟡 Started | **Jul 7** | Docker, CI/CD, air-gap separation, audit trail |
+| 4: Ministry | ⬜ Pending | **Jul 14-21** | Admin dashboard, manual, HSM, Mainnet migration |
 
 ---
 
