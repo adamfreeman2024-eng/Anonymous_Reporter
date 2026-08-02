@@ -10,8 +10,7 @@ import { createDecipheriv } from "node:crypto";
 function getPrivateKeyPem(): string | null {
   const key = process.env.LE_PRIVATE_KEY_PEM?.trim();
   if (!key) return null;
-  return key.replace(/\\n/g, "
-");
+  return key.replace(/\\n/g, "\n");
 }
 
 interface ReportPayload {

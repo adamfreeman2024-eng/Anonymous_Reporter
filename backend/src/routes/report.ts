@@ -13,6 +13,7 @@ import {
   getSimplexService,
   type AgencyChannel,
 } from "../services/simplex.js";
+import { appendAudit } from "../services/auditTrail.js";
 
 const VALID_DESTINATIONS: Destination[] = [
   "police",
@@ -79,6 +80,16 @@ reportRouter.post("/", async (req: Request, res: Response) => {
 
     const payloadHash = hashEncryptedPayload(encrypted);
     const hcsResult = await submitHashToHCS(payloadHash, getTopicId());
+
+    // Audit trail: hash + tracking seed only (never plaintext, never identity)
+    void appendAudit({
+      ts: new Date().toISOString(),
+      event: "hcs_submitted",
+      payloadHash,
+      trackingSeed: `${hcsResult.consensusTimestamp}@${hcsResult.sequenceNumber}`,
+      destination: destination as Destination,
+      transactionId: hcsResult.transactionId,
+    });
 
     // Fire-and-forget: hand encrypted payload to the air-gapped internal network.
     void simulateInternalNetworkProcessing(encrypted).catch((err: unknown) => {

@@ -30,3 +30,6 @@ Thumbs.db
 
 # Testing
 coverage/
+
+# Runtime data (audit trail, uploads)
+data/
