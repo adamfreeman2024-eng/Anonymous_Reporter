@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { reportRouter } from "./routes/report.js";
+import { adminRouter } from "./routes/admin.js";
 import { uploadRouter } from "./routes/upload.js";
 
 const app = express();
@@ -29,6 +30,7 @@ app.get("/health", (_req, res) => { res.json({ status: "ok", service: "blind-pro
 const strictLimiter = rateLimit({ windowMs: 60_000, max: isProduction ? 10 : 100, standardHeaders: true, legacyHeaders: false, message: { error: "Too many submissions." }});
 app.use("/api/submit-report", strictLimiter, reportRouter);
 app.use("/api/get-upload-url", strictLimiter, uploadRouter);
+app.use("/api/admin", adminRouter);
 
 import { closeHederaClient } from "./services/hedera.js";
 import { closeS3Client } from "./services/s3.js";
