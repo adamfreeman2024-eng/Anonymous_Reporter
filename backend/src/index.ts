@@ -7,6 +7,7 @@ import { randomUUID } from "node:crypto";
 import { reportRouter } from "./routes/report.js";
 import { adminRouter } from "./routes/admin.js";
 import { uploadRouter } from "./routes/upload.js";
+import { trackRouter } from "./routes/track.js";
 import { checkStorageReady } from "./services/s3.js";
 import { hederaConfigReady } from "./services/hedera.js";
 import { log } from "./services/logger.js";
@@ -53,7 +54,10 @@ app.get("/health/ready", async (_req, res) => {
 const strictLimiter = rateLimit({ windowMs: 60_000, max: isProduction ? 10 : 100, standardHeaders: true, legacyHeaders: false, message: { error: "Too many submissions." }});
 app.use("/api/submit-report", strictLimiter, reportRouter);
 app.use("/api/get-upload-url", strictLimiter, uploadRouter);
-app.use("/api/admin", adminRouter);
+const adminLimiter = rateLimit({ windowMs: 60_000, max: isProduction ? 30 : 300, standardHeaders: true, legacyHeaders: false, message: { error: "Too many admin requests." }});
+app.use("/api/admin", adminLimiter, adminRouter);
+const trackLimiter = rateLimit({ windowMs: 60_000, max: isProduction ? 30 : 300, standardHeaders: true, legacyHeaders: false, message: { error: "Too many tracking requests." }});
+app.use("/api/track", trackLimiter, trackRouter);
 
 import { closeHederaClient } from "./services/hedera.js";
 import { closeS3Client } from "./services/s3.js";

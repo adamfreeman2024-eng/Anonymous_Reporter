@@ -52,9 +52,11 @@ describe("forwardToInternalNetwork", () => {
   it("POSTs ciphertext to the internal bridge and returns its referenceId", async () => {
     let receivedBody: string | null = null;
     let receivedPath = "";
+    let receivedAuth = "";
 
     const server: Server = createServer((req, res) => {
       receivedPath = req.url ?? "";
+      receivedAuth = req.headers.authorization ?? "";
       let body = "";
       req.on("data", (chunk) => (body += chunk));
       req.on("end", () => {
@@ -74,6 +76,7 @@ describe("forwardToInternalNetwork", () => {
     try {
       process.env.NODE_ENV = "production";
       process.env.INTERNAL_NETWORK_URL = `http://127.0.0.1:${port}`;
+      process.env.INTERNAL_NETWORK_TOKEN = "bridge-secret-token";
 
       const result = await forwardToInternalNetwork(PAYLOAD, "anti-corruption");
       expect(result.accepted).toBe(true);
@@ -81,7 +84,9 @@ describe("forwardToInternalNetwork", () => {
       expect(receivedPath).toBe("/ingest");
       expect(receivedBody).toContain('"encrypted"');
       expect(receivedBody).toContain('"destination":"anti-corruption"');
+      expect(receivedAuth).toBe("Bearer bridge-secret-token");
     } finally {
+      delete process.env.INTERNAL_NETWORK_TOKEN;
       server.close();
     }
   });

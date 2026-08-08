@@ -65,6 +65,13 @@ async function httpForward(
   const endpoint = `${baseUrl.replace(/\/$/, "")}/ingest`;
   const body = JSON.stringify({ encrypted: encryptedPayload, destination });
 
+  // Bridge auth: INTERNAL_NETWORK_TOKEN is sent as a Bearer token when set.
+  const bridgeToken = process.env.INTERNAL_NETWORK_TOKEN?.trim();
+  const headers: Record<string, string> = { "content-type": "application/json" };
+  if (bridgeToken) {
+    headers.authorization = `Bearer ${bridgeToken}`;
+  }
+
   let lastError: unknown;
   for (let attempt = 0; attempt <= FORWARD_RETRIES; attempt++) {
     try {
@@ -73,7 +80,7 @@ async function httpForward(
       try {
         const res = await fetch(endpoint, {
           method: "POST",
-          headers: { "content-type": "application/json" },
+          headers,
           body,
           signal: controller.signal,
         });

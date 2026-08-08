@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { ReportForm } from "@/components/ReportForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -16,6 +17,12 @@ export default function HomePage() {
           <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400 sm:mt-4 sm:text-base">
             {t("subtitle")}
           </p>
+          <Link
+            href="/tracking"
+            className="mt-4 inline-block text-sm text-zinc-500 hover:text-red-500 dark:text-zinc-400 underline"
+          >
+            🔎 Ստուգել tracking seed-ը →
+          </Link>
         </div>
         <ReportForm />
       </div>
