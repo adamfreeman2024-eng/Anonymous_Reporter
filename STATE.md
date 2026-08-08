@@ -46,6 +46,10 @@ Next run: Phase B (deployment & ops) or Phase D (mainnet) on next session
 
 - **Trilingual UI**: locales hy/en/ru (`routing.ts`), `messages/ru.json` (native-quality Russian), `tracking` namespace in all three; tracking page fully translated; `LocaleSwitcher` (path-preserving, active state) top-right in layout; home link via `nav.track`; PoW button via `report.powComputing`. Admin page remains hy (internal ministry skeleton). Build green.
 
+## B-7 smoke test (2026-08-08)
+
+Booted `dist/index.js` with NODE_ENV=production, no secrets: `/health` 200; `/health/ready` 503 with exact missing config; `/api/admin/stats` 401 (fail-closed); `/api/track` 503 without topic; `/api/submit-report` 400 "Proof-of-work not satisfied" for bad nonce; strict limiter returned 429 after 10 rapid calls. Rate limiting + fail-closed behavior verified live.
+
 ## Watch List
 
 - [ ] `@ethersproject/signing-key` advisory (GHSA-848j-6mx2-7j84) — no fixed release; elliptic pinned 6.6.1; revisit on ethers publish
