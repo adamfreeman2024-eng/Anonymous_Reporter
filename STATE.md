@@ -32,6 +32,16 @@ Next run: Phase B (deployment & ops) or Phase D (mainnet) on next session
 - **Admin rate-limit gap fixed** — `/api/admin` now behind `adminLimiter` (was claimed in PLAN but missing).
 - Tests 41 → **49**; build green.
 
+## Phase E-3 (commit `ea76ea2`, 2026-08-08)
+
+- **Captcha-less anti-abuse**: client-side proof-of-work. Browser mines `nonce` with
+  sha256(canonicalHash + ":" + nonce) prefixed by zero hex chars; backend verifies in µs
+  before forward/HCS (`services/pow.ts` — `canonicalHash`, `verifyProofOfWork`, `powDifficulty`,
+  `POW_DIFFICULTY` bits multiple of 4, default 16). Frontend `utils/pow.ts` (Web Crypto miner,
+  progress + event-loop yield), ReportForm computes after encryption (🔐 state), api.ts sends `powNonce`.
+- Canonical hash deduped: report.ts + tests now use `pow.canonicalHash`.
+- Tests 49 → **55** (pow 6); build green.
+
 ## Watch List
 
 - [ ] `@ethersproject/signing-key` advisory (GHSA-848j-6mx2-7j84) — no fixed release; elliptic pinned 6.6.1; revisit on ethers publish
