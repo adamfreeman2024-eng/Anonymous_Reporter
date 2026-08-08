@@ -22,8 +22,15 @@ Next run: Phase B (deployment & ops) or Phase D (mainnet) on next session
 ## High Priority
 
 - [ ] **Phase B — Deployment & ops (remaining)**: TLS/nginx on VPS, secrets ceremony (user-side), ready probe wiring, audit rotation cron
-- [ ] **Phase C — Network topology**: blind-proxy VM vs air-gapped internal VM, bridge auth, MinIO retention
+- [ ] **Phase C (remaining)**: internal VM + mTLS (ministry side); C-3 bridge token DONE
 - [ ] **Phase D — Mainnet**: official HCS topic, HSM signing, admin RBAC, key ceremony runbook (ministry input)
+
+## Phase C/E partial (commit `dffb806`, 2026-08-08)
+
+- **C-3 bridge auth** — `INTERNAL_NETWORK_TOKEN` → Bearer header on `/ingest` (tested).
+- **E-2 tracking-seed verification** — `GET /api/track/:seed` queries the Hedera mirror node for the topic message by sequence (no operator key, no identity); `services/track.ts` (`parseTrackingSeed`, `mirrorNodeBaseUrl`, `lookupTrackingSeed`); frontend `/tracking` page (hash display, HashScan link, main-page link); rate-limited.
+- **Admin rate-limit gap fixed** — `/api/admin` now behind `adminLimiter` (was claimed in PLAN but missing).
+- Tests 41 → **49**; build green.
 
 ## Watch List
 

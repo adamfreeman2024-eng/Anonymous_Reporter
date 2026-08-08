@@ -52,10 +52,10 @@ reviewed below.
 - [ ] B-7 Load test / rate-limit tuning per destination; abuse monitoring (Hedera cost spikes).
 
 ### Phase C — Zero-trust network topology (architectural)
-- [ ] C-1 Blind proxy VM: no LE private key, no internal-network egress except the single HTTPS bridge call.
+- [x] C-1 Blind proxy VM: no LE private key, no internal-network egress except the single HTTPS bridge call. *(code: compose no longer passes LE key; egress = INTERNAL_NETWORK_URL only)*
 - [ ] C-2 Internal network VM (air-gapped by firewall): holds `LE_PRIVATE_KEY_PEM`, decrypts, runs Edge AI, writes dashboard.
-- [ ] C-3 Bridge auth: `INTERNAL_NETWORK_TOKEN` (mTLS or bearer, short-lived) between proxy and bridge.
-- [ ] C-4 MinIO bucket: private, encrypted at rest, lifecycle (retention 2y), no public endpoint.
+- [x] C-3 Bridge auth: `INTERNAL_NETWORK_TOKEN` (bearer) sent to the bridge `/ingest` — **DONE 2026-08-08** (mTLS optional later).
+- [ ] C-4 MinIO bucket: private, encrypted at rest, lifecycle (retention 2y), no public endpoint. *(lifecycle json exists; verify in deploy)*
 
 ### Phase D — Mainnet & Ministry (operator/ministry involvement)
 - [ ] D-1 Create the official HCS topic on mainnet; set `HEDERA_NETWORK=mainnet`, `HEDERA_TOPIC_ID=<official>`.
@@ -66,7 +66,7 @@ reviewed below.
 
 ### Phase E — Product
 - [ ] E-1 Multi-language (hy, en, ru) — next-intl already wired for hy/en skeleton.
-- [ ] E-2 Report status page by tracking seed (hash lookup on HCS, no identity).
+- [x] E-2 Report status page by tracking seed (hash lookup on HCS, no identity) — **DONE 2026-08-08** (`/api/track/:seed` + frontend `/tracking`).
 - [ ] E-3 Accessibility + mobile-first pass; captcha-less anti-abuse (proof-of-work or Hedera micro-fee).
 - [ ] E-4 Agency triage UI for the internal dashboard (CRITICAL/HIGH/LOW queues).
 
