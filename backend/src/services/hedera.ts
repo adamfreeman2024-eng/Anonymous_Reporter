@@ -47,15 +47,27 @@ function getHederaClient(): Client {
 
   const accountId = getRequiredEnv("HEDERA_ACCOUNT_ID");
   const privateKey = getRequiredEnv("HEDERA_PRIVATE_KEY");
+  const network = (process.env.HEDERA_NETWORK ?? "testnet").trim().toLowerCase();
 
   try {
-    hederaClient = Client.forTestnet();
+    if (network === "mainnet") {
+      hederaClient = Client.forMainnet();
+    } else if (network === "testnet") {
+      hederaClient = Client.forTestnet();
+    } else {
+      throw new HederaServiceError(
+        `Unsupported HEDERA_NETWORK "${network}" — use "testnet" or "mainnet".`,
+        500,
+      );
+    }
+
     hederaClient.setOperator(
       AccountId.fromString(accountId),
       PrivateKey.fromString(privateKey),
     );
     return hederaClient;
   } catch (err) {
+    if (err instanceof HederaServiceError) throw err;
     throw new HederaServiceError(
       "Failed to initialize Hedera client. Check account ID and private key.",
       500,
@@ -133,6 +145,11 @@ export async function submitHashToHCS(
 
   if (!topicId) {
     throw new HederaServiceError("HCS topic ID is required.", 500);
+  }
+
+  // Fail fast on malformed topic IDs (0.0.<shard>.<realm>.<num> or 0.0.<num>).
+  if (!/^\d+\.\d+\.\d+$/.test(topicId)) {
+    throw new HederaServiceError("HCS topic ID must be in the form 0.0.<number>.", 400);
   }
 
   const client = getHederaClient();

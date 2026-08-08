@@ -1,23 +1,44 @@
 import { Router, type Request, type Response } from "express";
 import { readFile } from "node:fs/promises";
+import { timingSafeEqual, createHash } from "node:crypto";
 
 /**
  * Admin stats (Phase 4 — Ministry dashboard, skeleton).
  * Reads the append-only audit trail (never plaintext) and returns aggregate counts.
- * Guarded by OPERATOR_API_KEY (Bearer) when set — open only in dev.
+ * Guarded by OPERATOR_API_KEY (Bearer). In production the key is REQUIRED —
+ * the endpoint fails closed (401) when the key is unset.
  */
 
 export const adminRouter = Router();
 
-function isAuthorized(req: Request): boolean {
-  const key = process.env.OPERATOR_API_KEY?.trim();
-  if (!key) return true; // dev mode: open
-  const auth = req.headers.authorization || "";
-  return auth === `Bearer ${key}` || auth === key;
+function digest(value: string): Buffer {
+  return createHash("sha256").update(value).digest();
 }
 
-adminRouter.get("/stats", async (_req: Request, res: Response) => {
-  if (!isAuthorized(_req)) {
+export function isAuthorized(req: Request): boolean {
+  const key = process.env.OPERATOR_API_KEY?.trim();
+  const isProduction = process.env.NODE_ENV === "production";
+
+  if (!key) {
+    // Dev mode: open. Production: fail closed.
+    return !isProduction;
+  }
+
+  const header = req.headers.authorization || "";
+  const token = header.startsWith("Bearer ") ? header.slice("Bearer ".length) : header;
+
+  if (!token) {
+    return false;
+  }
+
+  // Constant-time comparison — prevents timing side-channel on the admin key.
+  const a = digest(token);
+  const b = digest(key);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+adminRouter.get("/stats", async (req: Request, res: Response) => {
+  if (!isAuthorized(req)) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }

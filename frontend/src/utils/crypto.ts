@@ -240,10 +240,13 @@ export async function encryptPayloadWithKey(
 
   assertEncryptPublicKey(publicKey);
 
-  // Import the external raw AES key
+  // Import the external raw AES key.
+  // TS 5.9: subtle.importKey/encrypt require BufferSource backed by an
+  // ArrayBuffer — copy into a fresh ArrayBuffer-backed view.
+  const aesKeyBytes = new Uint8Array(rawAesKey);
   const aesKey = await crypto.subtle.importKey(
     "raw",
-    rawAesKey,
+    aesKeyBytes,
     { name: "AES-GCM" },
     false,
     ["encrypt"],
@@ -269,7 +272,7 @@ export async function encryptPayloadWithKey(
     encryptedAesKey = await crypto.subtle.encrypt(
       { name: "RSA-OAEP" },
       publicKey,
-      rawAesKey,
+      aesKeyBytes,
     );
   } catch (err) {
     throw new CryptoError("RSA-OAEP key wrapping failed.", { cause: err });

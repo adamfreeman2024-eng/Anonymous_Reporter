@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { decryptPayload, DecryptionError } from "../internal/decryption.js";
+import { decryptPayload, unwrapAesKey, DecryptionError } from "../internal/decryption.js";
 import { generateKeyPairSync } from "node:crypto";
 
 // Generate a test RSA key pair for encryption/decryption testing
@@ -81,9 +81,21 @@ describe("decryptPayload", () => {
   });
 
   it("throws DecryptionError with wrong private key", () => {
-    const { publicKey: wrongPub, privateKey: wrongPriv } = generateTestKeyPair();
+    const { privateKey: wrongPriv } = generateTestKeyPair();
     const encrypted = simulateHybridEncrypt("secret", publicKey);
     expect(() => decryptPayload(encrypted, wrongPriv)).toThrow(DecryptionError);
+  });
+
+  it("unwrapAesKey returns the 32-byte AES key for attachment decryption", () => {
+    const encrypted = simulateHybridEncrypt("secret", publicKey);
+    const key = unwrapAesKey(encrypted, privateKey);
+    expect(key.length).toBe(32);
+  });
+
+  it("unwrapAesKey throws DecryptionError with a wrong private key", () => {
+    const { privateKey: wrongPriv } = generateTestKeyPair();
+    const encrypted = simulateHybridEncrypt("secret", publicKey);
+    expect(() => unwrapAesKey(encrypted, wrongPriv)).toThrow(DecryptionError);
   });
 
   it("throws DecryptionError on corrupted ciphertext", () => {

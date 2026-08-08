@@ -1,11 +1,12 @@
 import {
   decryptPayload,
+  unwrapAesKey,
   type HybridEncryptedPayload,
   DecryptionError,
 } from "./decryption.js";
 import { analyzeThreatLevel, type ThreatAnalysis } from "./edge-ai.js";
 import { downloadObject } from "../services/s3.js";
-import { createDecipheriv } from "node:crypto";
+import { createDecipheriv, createHash } from "node:crypto";
 
 function getPrivateKeyPem(): string | null {
   const key = process.env.LE_PRIVATE_KEY_PEM?.trim();
@@ -87,13 +88,32 @@ export async function simulateInternalNetworkProcessing(
     payload = { version: 1, message: plaintext };
   }
 
-  // Decrypt attached files
+  // Decrypt attached files with the shared AES key (internal network only —
+  // the blind proxy never holds the private key or the AES key).
   if (payload.encryptedFiles?.length) {
-    // The AES key is already unwrapped by decryptPayload — we need access to it.
-    // For MVP, log that files exist and would be decrypted.
-    console.info(`[internal-network] 📎 ${payload.encryptedFiles.length} encrypted file(s) referenced:`);
+    let aesKey: Buffer;
+    try {
+      aesKey = unwrapAesKey(encryptedPayload, privatePemKey);
+    } catch (err) {
+      console.error(
+        `[internal-network] ✖ AES key unwrap failed for attachments: ${err instanceof DecryptionError ? err.message : err}`,
+      );
+      return;
+    }
+
+    console.info(`[internal-network] 📎 ${payload.encryptedFiles.length} encrypted file(s) decrypted:`);
     for (const f of payload.encryptedFiles) {
-      console.info(`  - ${f.fileName} (${(f.size / 1024 / 1024).toFixed(1)}MB, S3: ${f.s3Key})`);
+      try {
+        const plain = await decryptFileContent(f.s3Key, f.iv, aesKey);
+        const sha = createHash("sha256").update(plain).digest("hex");
+        console.info(
+          `  - ${f.fileName} (${(f.size / 1024 / 1024).toFixed(1)}MB, sha256:${sha.slice(0, 16)}…)`,
+        );
+      } catch (err) {
+        console.error(
+          `  - ${f.fileName}: decrypt failed (${err instanceof Error ? err.message : err})`,
+        );
+      }
     }
   }
 

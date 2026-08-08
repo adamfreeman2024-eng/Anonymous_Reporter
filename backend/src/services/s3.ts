@@ -1,7 +1,7 @@
 import { S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { PutObjectCommand, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
-import { createHash } from "node:crypto";
+import { randomBytes } from "node:crypto";
 
 export class S3ServiceError extends Error {
   constructor(message: string, options?: ErrorOptions) {
@@ -65,10 +65,7 @@ export async function generatePresignedUploadUrl(
 ): Promise<{ uploadUrl: string; s3Key: string }> {
   const bucket = getBucket();
   const timestamp = Date.now();
-  const random = createHash("sha256")
-    .update(`${fileName}-${timestamp}-${Math.random()}`)
-    .digest("hex")
-    .slice(0, 12);
+  const random = randomBytes(6).toString("hex");
   const s3Key = `uploads/${timestamp}-${random}-${fileName}`;
 
   const client = getS3Client();

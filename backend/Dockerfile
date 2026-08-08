@@ -18,6 +18,8 @@ ENV NODE_ENV=production
 COPY --from=builder /app/backend/dist ./dist
 COPY --from=builder /app/backend/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
+# Production image: drop devDependencies (typescript, vitest, eslint, …).
+RUN npm prune --omit=dev --include-workspace-root
 RUN mkdir -p /app/data
 EXPOSE 3001
 USER node

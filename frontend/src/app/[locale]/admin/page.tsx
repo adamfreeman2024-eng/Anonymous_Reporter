@@ -43,6 +43,9 @@ export default function AdminPage() {
 
   useEffect(() => {
     void load();
+    // Run once on mount; `load` is intentionally excluded — the admin key is
+    // applied via the explicit reload button, not on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -6,7 +6,6 @@
 
 const CHUNK_SIZE = 1024 * 1024; // 1MB
 const GCM_IV_LENGTH = 12;
-const GCM_TAG_LENGTH = 16;
 
 export class FileCryptoError extends Error {
   constructor(message: string, options?: ErrorOptions) {
@@ -83,9 +82,11 @@ export async function uploadToPresignedUrl(
   data: Uint8Array,
   presignedUrl: string,
 ): Promise<{ etag: string; ok: boolean }> {
+  // TS 5.9: fetch body requires ArrayBuffer-backed views — copy once.
+  const body = new Uint8Array(data);
   const response = await fetch(presignedUrl, {
     method: "PUT",
-    body: data,
+    body,
     headers: {
       "Content-Type": "application/octet-stream",
     },

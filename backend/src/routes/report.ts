@@ -4,6 +4,7 @@ import { stripMetadata } from "../middleware/stripMetadata.js";
 import { simulateInternalNetworkProcessing } from "../internal/mock-server.js";
 import {
   forwardToInternalNetwork,
+  InternalForwardError,
   type Destination,
   type EncryptedPayload,
 } from "../services/forwardToInternalNetwork.js";
@@ -128,6 +129,12 @@ reportRouter.post("/", async (req: Request, res: Response) => {
   } catch (err) {
     if (err instanceof HederaServiceError) {
       console.error("[submit-report] Hedera error:", err.message);
+      res.status(err.statusCode).json({ error: err.message });
+      return;
+    }
+
+    if (err instanceof InternalForwardError) {
+      console.error("[submit-report] Internal forward error:", err.message);
       res.status(err.statusCode).json({ error: err.message });
       return;
     }

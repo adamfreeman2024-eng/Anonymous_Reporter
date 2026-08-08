@@ -67,10 +67,17 @@ services:
     ports:
       - "${BACKEND_PORT:-3001}:3001"
     environment:
+      NODE_ENV: production
+      HEDERA_NETWORK: ${HEDERA_NETWORK:-testnet}
       HEDERA_ACCOUNT_ID: ${HEDERA_ACCOUNT_ID:-}
       HEDERA_PRIVATE_KEY: ${HEDERA_PRIVATE_KEY:-}
       HEDERA_TOPIC_ID: ${HEDERA_TOPIC_ID:-}
-      LE_PRIVATE_KEY_PEM: ${LE_PRIVATE_KEY_PEM:-}
+      # ⚠️ LE_PRIVATE_KEY_PEM must NEVER be set on the blind proxy in
+      # production — the proxy never decrypts. Internal-network decryption
+      # runs on an isolated host with its own key material.
+      INTERNAL_NETWORK_URL: ${INTERNAL_NETWORK_URL:-}
+      ENABLE_INTERNAL_MOCK: ${ENABLE_INTERNAL_MOCK:-0}
+      OPERATOR_API_KEY: ${OPERATOR_API_KEY:-}
       MINIO_ENDPOINT: minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-anonymous_reporter}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}

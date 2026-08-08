@@ -1,59 +1,39 @@
 # Loop State — Anonymous_Reporter
 
-Last run: 2026-08-02 (Hermes autonomous — Phase 3 production work)
-Next run: on next dev session
+Last run: 2026-08-08 (Hermes — audit + corporate hardening round)
+Next run: Phase B (deployment & ops) or Phase D (mainnet) on next session
 
-## Status (2026-08-02)
+## Status (2026-08-08)
 
-- ✅ **CI pipeline** — `.github/workflows/ci.yml` (lint + typecheck + tests + build + audit)
-- ✅ **Tests 24/24** — added `stripMetadata` suite (4 tests) on top of decryption + edge-ai
-- ✅ **Audit trail** — append-only JSONL (`backend/src/services/auditTrail.ts`, `AUDIT_LOG_PATH`)
-- ✅ **Docker** — backend + frontend Dockerfiles, compose services (minio + smp-relay + backend + frontend)
-- ✅ **Bug fix** — `mock-server.ts` literal-newline string bug (was breaking `tsc` build)
-- ✅ **typecheck script** added to backend
+- ✅ **Supply-chain audit** — 28 → 17 vulnerabilities, **critical 1 → 0**; overrides: protobufjs 8.7.2, @grpc/grpc-js 1.14.4, elliptic 6.6.1, brace-expansion 5.0.9, ip-address 10.4.0, js-yaml 4.3.1, shell-quote 1.10.0, postcss 8.5.26, sharp 0.35.3
+- ✅ **Hedera network env** — `HEDERA_NETWORK=testnet|mainnet` (was hardcoded forTestnet); topic `0.0.<num>` format → 400
+- ✅ **Admin auth hardened** — `timingSafeEqual` (SHA-256 digests), `NODE_ENV=production` fails closed (401 without OPERATOR_API_KEY)
+- ✅ **Real internal-network forwarding** — `INTERNAL_NETWORK_URL/ingest` POST + 10s timeout + 1 retry; `InternalForwardError` → 502/503; mock only in dev / `ENABLE_INTERNAL_MOCK=1`
+- ✅ **Zero-trust fix** — `LE_PRIVATE_KEY_PEM` removed from docker-compose backend env (proxy never decrypts)
+- ✅ **Attachment decryption wired** — `unwrapAesKey` + real AES-256-GCM file decrypt in internal mock (sha256 prefix logged, never content)
+- ✅ **Container hygiene** — backend runner `npm prune --omit=dev`; S3 suffix `crypto.randomBytes`
+- ✅ **Tests 41/41** — new suites: admin auth (6), forward (5), hedera (4), unwrapAesKey (2)
+- ✅ **ESLint clean** — fixed 2 unused-var errors
+- 📄 **PLAN.md** — corporate production roadmap written (Phase A done; B–E pending)
 
 ## High Priority
 
-- [ ] **Phase 4 — Ministry** (admin dashboard, manual, HSM, Mainnet migration) — needs human/agency input
+- [ ] **Phase B — Deployment & ops**: TLS, secrets ceremony, readiness endpoint, audit rotation, structured logs, CI audit gate
+- [ ] **Phase C — Network topology**: blind-proxy VM vs air-gapped internal VM, bridge auth, MinIO retention
+- [ ] **Phase D — Mainnet**: official HCS topic, HSM signing, admin RBAC, key ceremony runbook (ministry input)
 
 ## Watch List
 
+- [ ] `@ethersproject/signing-key` advisory (GHSA-848j-6mx2-7j84) — no fixed release; elliptic pinned 6.6.1; revisit on ethers publish
+- [ ] `image-size` `*` — build-time only (react-native chain via @hashgraph/sdk transitive); revisit on SDK upgrade
 - [ ] `simplex-chat` npm package — AGPLv3, used unchanged, compliance OK
-- [ ] HCS topic — testnet only; Phase 4 moves to mainnet
-
-## Recent Noise
-
-- Phase 1 (Security) — complete via 2026-08-02 work (tests, CI, env separation, LICENSE)
-- Phase 3 (Production) — started → Docker + CI/CD + audit trail done (2026-08-02)
-
-
-- [ ] **SimpleX Relay Health** — SMP relay in docker-compose.yml
-  - Status: configured, not yet deployed for production
-  - Loop action: report-only, no action until Phase 3 (Docker deployment)
-
-## Watch List
-
-- [ ] `simplex-chat` npm package — AGPLv3 licensed, used unchanged
-  - Status: no modifications, compliance OK
-
-- [ ] HCS topic state — testnet only, Phase 4 moves to mainnet
-  - Status: monitoring
-
-## Active Loop Work
-
-- [ ] **Daily Triage** (1d) — 08:15 Yerevan
-  - Action: CI health, test pass/fail counts, Phase deadlines, SimpleX status
-  - Last: 2026-06-26 — init run
-
-## Recent Noise
-
-- Dependabot — n/a (no npm registry deps auto-update)
-- PRs — none open
+- [ ] HCS topic — testnet only; Phase D moves to mainnet
 
 ## Human Decisions
 
 - (2026-06-26) Mayis: SimpleX integration approved (AGPLv3 compliance verified)
 - (2026-06-26) Mayis: Phase priority: Phase 1 → Phase 3 → Phase 4
+- (2026-08-08) Mayis: audit + fix + corporate production plan, executed in-loop
 
 ## Loop Budget (rolling 7d)
 
