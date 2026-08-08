@@ -1,6 +1,11 @@
 import { S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { PutObjectCommand, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import {
+  PutObjectCommand,
+  HeadObjectCommand,
+  GetObjectCommand,
+  HeadBucketCommand,
+} from "@aws-sdk/client-s3";
 import { randomBytes } from "node:crypto";
 
 export class S3ServiceError extends Error {
@@ -141,6 +146,23 @@ export async function downloadObject(s3Key: string): Promise<Buffer> {
       `Failed to download object ${s3Key} from MinIO.`,
       { cause: err },
     );
+  }
+}
+
+/**
+ * Readiness probe: verifies the configured bucket exists and is reachable.
+ * Returns a structured result (never throws) for the /health/ready endpoint.
+ */
+export async function checkStorageReady(): Promise<{ ready: boolean; error?: string }> {
+  try {
+    const client = getS3Client();
+    await client.send(new HeadBucketCommand({ Bucket: getBucket() }));
+    return { ready: true };
+  } catch (err) {
+    return {
+      ready: false,
+      error: err instanceof Error ? err.message : "storage unavailable",
+    };
   }
 }
 

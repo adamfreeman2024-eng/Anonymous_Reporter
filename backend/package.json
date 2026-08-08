@@ -12,6 +12,7 @@
     "setup:keys": "ts-node scripts/generate-keys.ts",
     "lint": "eslint src/",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
     "@types/node": "^22.15.29",
     "@typescript-eslint/eslint-plugin": "^8.62.0",
     "@typescript-eslint/parser": "^8.62.0",
+    "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^10.5.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.4",

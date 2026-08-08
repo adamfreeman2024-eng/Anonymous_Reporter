@@ -33,6 +33,10 @@ jobs:
       - name: Unit tests
         run: npm run test
 
+      - name: Coverage report (informational)
+        run: npm run test:coverage -w backend
+        continue-on-error: true
+
       - name: Build (backend)
         run: npm run build -w backend
 

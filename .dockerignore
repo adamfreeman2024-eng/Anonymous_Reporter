@@ -1,0 +1,14 @@
+node_modules
+.git
+.github
+data
+coverage
+dist
+.next
+out
+*.log
+.env
+.env.*
+docs
+patterns
+.hermes

@@ -192,6 +192,16 @@ export async function submitHashToHCS(
 }
 
 /**
+ * Readiness probe: checks whether the Hedera operator config is present.
+ * Does NOT initialize the client (lazy) — the report path does that.
+ */
+export function hederaConfigReady(): { ready: boolean; missing: string[] } {
+  const required = ["HEDERA_ACCOUNT_ID", "HEDERA_PRIVATE_KEY", "HEDERA_TOPIC_ID"];
+  const missing = required.filter((name) => !process.env[name]?.trim());
+  return { ready: missing.length === 0, missing };
+}
+
+/**
  * Releases the Hedera client connection. Useful for graceful shutdown.
  */
 export function closeHederaClient(): void {

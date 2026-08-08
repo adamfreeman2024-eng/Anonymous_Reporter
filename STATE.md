@@ -11,14 +11,17 @@ Next run: Phase B (deployment & ops) or Phase D (mainnet) on next session
 - ✅ **Real internal-network forwarding** — `INTERNAL_NETWORK_URL/ingest` POST + 10s timeout + 1 retry; `InternalForwardError` → 502/503; mock only in dev / `ENABLE_INTERNAL_MOCK=1`
 - ✅ **Zero-trust fix** — `LE_PRIVATE_KEY_PEM` removed from docker-compose backend env (proxy never decrypts)
 - ✅ **Attachment decryption wired** — `unwrapAesKey` + real AES-256-GCM file decrypt in internal mock (sha256 prefix logged, never content)
-- ✅ **Container hygiene** — backend runner `npm prune --omit=dev`; S3 suffix `crypto.randomBytes`
+- ✅ **Container hygiene** — backend runner `npm prune --omit=dev`; S3 suffix `crypto.randomBytes`; `.dockerignore` added
 - ✅ **Tests 41/41** — new suites: admin auth (6), forward (5), hedera (4), unwrapAesKey (2)
-- ✅ **ESLint clean** — fixed 2 unused-var errors
-- 📄 **PLAN.md** — corporate production roadmap written (Phase A done; B–E pending)
+- ✅ **ESLint clean** — fixed 2 unused-var errors; frontend `eslint.config.mjs` (next lint non-interactive)
+- ✅ **TS 5.9 build fix** — `Uint8Array<ArrayBuffer>` copies in crypto.ts / fileCrypto.ts
+- ✅ **CI** — lint blocking, `npm audit --audit-level=critical` blocking, coverage step (informational)
+- 📄 **PLAN.md** — corporate production roadmap (Phase A done; B partial done this round)
+- 📄 **Phase B partial (2026-08-08)** — `/health/ready` (storage HeadBucket + Hedera config); structured JSON logger (`services/logger.ts`, no identity fields) + request-id (logs only); `test:coverage`; docs/SECRETS.md; docs/AUDIT-RETENTION.md; `docker/.env.production.example`
 
 ## High Priority
 
-- [ ] **Phase B — Deployment & ops**: TLS, secrets ceremony, readiness endpoint, audit rotation, structured logs, CI audit gate
+- [ ] **Phase B — Deployment & ops (remaining)**: TLS/nginx on VPS, secrets ceremony (user-side), ready probe wiring, audit rotation cron
 - [ ] **Phase C — Network topology**: blind-proxy VM vs air-gapped internal VM, bridge auth, MinIO retention
 - [ ] **Phase D — Mainnet**: official HCS topic, HSM signing, admin RBAC, key ceremony runbook (ministry input)
 

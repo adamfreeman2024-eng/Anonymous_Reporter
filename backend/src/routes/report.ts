@@ -15,6 +15,7 @@ import {
   type AgencyChannel,
 } from "../services/simplex.js";
 import { appendAudit } from "../services/auditTrail.js";
+import { log } from "../services/logger.js";
 
 const VALID_DESTINATIONS: Destination[] = [
   "police",
@@ -94,10 +95,9 @@ reportRouter.post("/", async (req: Request, res: Response) => {
 
     // Fire-and-forget: hand encrypted payload to the air-gapped internal network.
     void simulateInternalNetworkProcessing(encrypted).catch((err: unknown) => {
-      console.error(
-        "[internal-network] Unhandled processing error:",
-        err instanceof Error ? err.message : err,
-      );
+      log("error", "report.internal_mock_error", {
+        message: err instanceof Error ? err.message : String(err),
+      });
     });
 
     res.status(201).json({
@@ -118,28 +118,33 @@ reportRouter.post("/", async (req: Request, res: Response) => {
           consensusTimestamp: hcsResult.consensusTimestamp,
           payloadHash,
         });
-        console.log(
-          `[simplex] Tracking seed sent for ${destination}: ${hcsResult.consensusTimestamp}`,
-        );
+        log("info", "report.simplex_sent", {
+          trackingSeed: `${hcsResult.consensusTimestamp}@${hcsResult.sequenceNumber}`,
+          destination,
+        });
       } catch (simplexErr) {
         // SimpleX delivery is non-critical — don't fail the report
-        console.error("[simplex] Alert delivery error:", simplexErr);
+        log("error", "report.simplex_failed", {
+          message: simplexErr instanceof Error ? simplexErr.message : String(simplexErr),
+        });
       }
     }
   } catch (err) {
     if (err instanceof HederaServiceError) {
-      console.error("[submit-report] Hedera error:", err.message);
+      log("error", "report.hedera_error", { message: err.message });
       res.status(err.statusCode).json({ error: err.message });
       return;
     }
 
     if (err instanceof InternalForwardError) {
-      console.error("[submit-report] Internal forward error:", err.message);
+      log("error", "report.forward_error", { message: err.message });
       res.status(err.statusCode).json({ error: err.message });
       return;
     }
 
-    console.error("[submit-report] Unexpected error:", err);
+    log("error", "report.unexpected", {
+      message: err instanceof Error ? err.message : String(err),
+    });
     res.status(500).json({ error: "Internal server error." });
   }
 });
