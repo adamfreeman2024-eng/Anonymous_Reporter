@@ -42,6 +42,10 @@ Next run: Phase B (deployment & ops) or Phase D (mainnet) on next session
 - Canonical hash deduped: report.ts + tests now use `pow.canonicalHash`.
 - Tests 49 → **55** (pow 6); build green.
 
+## Phase E-1 (commit `ac2cd52`, 2026-08-08)
+
+- **Trilingual UI**: locales hy/en/ru (`routing.ts`), `messages/ru.json` (native-quality Russian), `tracking` namespace in all three; tracking page fully translated; `LocaleSwitcher` (path-preserving, active state) top-right in layout; home link via `nav.track`; PoW button via `report.powComputing`. Admin page remains hy (internal ministry skeleton). Build green.
+
 ## Watch List
 
 - [ ] `@ethersproject/signing-key` advisory (GHSA-848j-6mx2-7j84) — no fixed release; elliptic pinned 6.6.1; revisit on ethers publish

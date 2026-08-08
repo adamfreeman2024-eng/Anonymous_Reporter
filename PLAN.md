@@ -65,7 +65,7 @@ reviewed below.
 - [ ] D-5 Legal/process: data-retention policy, SimpleX relay ops, incident-response runbook.
 
 ### Phase E — Product
-- [ ] E-1 Multi-language (hy, en, ru) — next-intl already wired for hy/en skeleton.
+- [x] E-1 Multi-language (hy, en, ru) — **DONE 2026-08-08** (ru.json native-quality, LocaleSwitcher, tracking page translated; admin stays hy).
 - [x] E-2 Report status page by tracking seed (hash lookup on HCS, no identity) — **DONE 2026-08-08** (`/api/track/:seed` + frontend `/tracking`).
 - [x] E-3 Captcha-less anti-abuse (client-side proof-of-work) — **DONE 2026-08-08** (`services/pow.ts` + `frontend/utils/pow.ts`, `POW_DIFFICULTY` default 16 bits, env-overridable).
 - [ ] E-4 Agency triage UI for the internal dashboard (CRITICAL/HIGH/LOW queues). *(blocked on Phase C-2 internal VM — decrypted content never touches the blind proxy)*
