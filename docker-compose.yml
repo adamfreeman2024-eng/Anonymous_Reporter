@@ -69,6 +69,7 @@ services:
     environment:
       NODE_ENV: production
       HEDERA_NETWORK: ${HEDERA_NETWORK:-testnet}
+      POW_DIFFICULTY: ${POW_DIFFICULTY:-16}
       HEDERA_ACCOUNT_ID: ${HEDERA_ACCOUNT_ID:-}
       HEDERA_PRIVATE_KEY: ${HEDERA_PRIVATE_KEY:-}
       HEDERA_TOPIC_ID: ${HEDERA_TOPIC_ID:-}

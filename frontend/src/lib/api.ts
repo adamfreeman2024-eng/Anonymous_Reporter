@@ -7,6 +7,7 @@ const API_BASE =
 export interface SubmitReportRequest {
   encrypted: HybridEncryptedPayload;
   destination: Destination;
+  powNonce: string;
 }
 
 export interface SubmitReportResponse {

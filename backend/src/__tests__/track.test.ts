@@ -7,8 +7,8 @@ import {
   lookupTrackingSeed,
   mirrorNodeBaseUrl,
   parseTrackingSeed,
-  hashEncryptedPayloadFields,
 } from "../services/track.js";
+import { canonicalHash } from "../services/pow.js";
 
 const TOPIC = "0.0.12345";
 
@@ -96,7 +96,7 @@ describe("lookupTrackingSeed", () => {
 
 describe("hashEncryptedPayloadFields", () => {
   it("produces a canonical sha256 hex", () => {
-    const h = hashEncryptedPayloadFields("AAA", "BBB", "CCC");
+    const h = canonicalHash({ encryptedPayloadBase64: "AAA", ivBase64: "BBB", encryptedAesKeyBase64: "CCC" });
     expect(h).toMatch(/^[a-f0-9]{64}$/);
   });
 });

@@ -5,9 +5,8 @@
  * returned at submission (`<consensusTimestamp>@<sequenceNumber>`):
  * the mirror node returns the HCS message (the SHA-256 hex we submitted),
  * so the citizen can compare it with their own local hash. No identity
- * is involved — the seed is not tied to any person.
+ * involved — the seed is not tied to any person.
  */
-import { createHash } from "node:crypto";
 
 export class TrackError extends Error {
   readonly statusCode: number;
@@ -112,18 +111,4 @@ export async function lookupTrackingSeed(
       cause: err,
     });
   }
-}
-
-/** Canonical SHA-256 of the canonical payload — same shape as report.ts. */
-export function hashEncryptedPayloadFields(
-  encryptedPayloadBase64: string,
-  ivBase64: string,
-  encryptedAesKeyBase64: string,
-): string {
-  const canonical = JSON.stringify({
-    encryptedPayloadBase64,
-    ivBase64,
-    encryptedAesKeyBase64,
-  });
-  return createHash("sha256").update(canonical).digest("hex");
 }

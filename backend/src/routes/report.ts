@@ -1,5 +1,4 @@
 import { Router, type Request, type Response } from "express";
-import { createHash } from "node:crypto";
 import { stripMetadata } from "../middleware/stripMetadata.js";
 import { simulateInternalNetworkProcessing } from "../internal/mock-server.js";
 import {
@@ -16,22 +15,13 @@ import {
 } from "../services/simplex.js";
 import { appendAudit } from "../services/auditTrail.js";
 import { log } from "../services/logger.js";
+import { canonicalHash, powDifficulty, verifyProofOfWork } from "../services/pow.js";
 
 const VALID_DESTINATIONS: Destination[] = [
   "police",
   "nss",
   "anti-corruption",
 ];
-
-function hashEncryptedPayload(encrypted: EncryptedPayload): string {
-  const canonical = JSON.stringify({
-    encryptedPayloadBase64: encrypted.encryptedPayloadBase64,
-    ivBase64: encrypted.ivBase64,
-    encryptedAesKeyBase64: encrypted.encryptedAesKeyBase64,
-  });
-
-  return createHash("sha256").update(canonical).digest("hex");
-}
 
 function getTopicId(): string {
   const topicId = process.env.HEDERA_TOPIC_ID?.trim();
@@ -70,6 +60,13 @@ reportRouter.post("/", async (req: Request, res: Response) => {
       return;
     }
 
+    // Anti-abuse: verify the client-side proof-of-work before any costly work.
+    const { powNonce } = req.body as { powNonce?: string | number };
+    if (!verifyProofOfWork(encrypted, powNonce, powDifficulty())) {
+      res.status(400).json({ error: "Proof-of-work not satisfied." });
+      return;
+    }
+
     const forwardResult = await forwardToInternalNetwork(
       encrypted,
       destination as Destination,
@@ -80,7 +77,7 @@ reportRouter.post("/", async (req: Request, res: Response) => {
       return;
     }
 
-    const payloadHash = hashEncryptedPayload(encrypted);
+    const payloadHash = canonicalHash(encrypted);
     const hcsResult = await submitHashToHCS(payloadHash, getTopicId());
 
     // Audit trail: hash + tracking seed only (never plaintext, never identity)

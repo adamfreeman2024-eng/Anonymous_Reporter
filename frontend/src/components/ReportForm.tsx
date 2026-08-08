@@ -8,6 +8,7 @@ import { CryptoError, encryptPayloadWithKey, importRSAPublicKey } from "@/utils/
 import { ExifError, stripExifData } from "@/utils/exif";
 import { buildReportPlaintext, type EncryptedFileRef } from "@/utils/reportPayload";
 import { encryptFile, generateSessionAesKey, uploadToPresignedUrl } from "@/utils/fileCrypto";
+import { findNonce } from "@/utils/pow";
 export type Destination = "police" | "nss" | "anti-corruption";
 const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "video/mp4"];
 export function ReportForm() {
@@ -23,6 +24,8 @@ export function ReportForm() {
   const [publicKey, setPublicKey] = useState<CryptoKey | null>(null);
   const [isKeyReady, setIsKeyReady] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [powStage, setPowStage] = useState(false);
+  const POW_DIFFICULTY = Number(process.env.NEXT_PUBLIC_POW_DIFFICULTY ?? 16);
   useEffect(() => {
     let cancelled = false;
     async function loadPinnedPublicKey() {
@@ -88,7 +91,11 @@ export function ReportForm() {
       setUploadProgress(95);
       const plaintext = buildReportPlaintext(message.trim(), undefined, encryptedFiles.length > 0 ? encryptedFiles : undefined);
       const encrypted = await encryptPayloadWithKey(plaintext, publicKey, aesRaw);
-      const response = await submitReport({ encrypted, destination });
+      // Anti-abuse: compute the client-side proof-of-work (captcha-less).
+      setPowStage(true);
+      const powNonce = await findNonce(encrypted, POW_DIFFICULTY);
+      setPowStage(false);
+      const response = await submitReport({ encrypted, destination, powNonce });
       setTrackingSeed(response.trackingSeed);
       setMessage("");
       clearAttachment();
@@ -122,7 +129,7 @@ export function ReportForm() {
           {attachedFile && <button type="button" onClick={clearAttachment} disabled={isDisabled}>{t("removeFile")}</button>}
           {isSubmitting && uploadProgress > 0 && <div><div style={{ width: `${uploadProgress}%` }} /></div>}
           {(["police", "nss", "anti-corruption"] as const).map(dest => <button key={dest} type="button" onClick={() => setDestination(dest)} disabled={isDisabled}>{t(`destinations.${dest}`)}</button>)}
-          <button type="submit" disabled={isDisabled}>{isSubmitting ? t("submitting") : t("submit")}</button>
+          <button type="submit" disabled={isDisabled}>{powStage ? "🔐 Ապացույցի հաշվարկ…" : isSubmitting ? t("submitting") : t("submit")}</button>
         </form>
       )}
     </div>
