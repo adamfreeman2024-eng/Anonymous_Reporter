@@ -21,7 +21,7 @@ export default function HomePage() {
             href="/tracking"
             className="mt-4 inline-block text-sm text-zinc-500 hover:text-red-500 dark:text-zinc-400 underline"
           >
-            🔎 Ստուգել tracking seed-ը →
+            🔎 {t("track")} →
           </Link>
         </div>
         <ReportForm />

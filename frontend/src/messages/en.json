@@ -7,6 +7,25 @@
     "home": "Home",
     "track": "Track Report"
   },
+  "tracking": {
+    "title": "Tracking Seed",
+    "subtitle": "Verify your report is registered on Hedera — hash only, never the content",
+    "placeholder": "e.g. 1723123456.789012345@42",
+    "check": "Check",
+    "checking": "Checking…",
+    "emptySeed": "Enter a tracking seed.",
+    "failed": "Verification failed.",
+    "found": "Report found on Hedera",
+    "notFound": "Report not found for this topic and sequence",
+    "notFoundHelp": "Check the seed — format is consensusTimestamp@sequenceNumber. The hash may not have reached consensus yet, or the seed is wrong.",
+    "timestamp": "Consensus timestamp",
+    "sequence": "Sequence",
+    "transaction": "Transaction",
+    "hashLabel": "On-chain SHA-256 hash",
+    "hashHelp": "Compare with the hash you saved. It cannot be reversed into content — only law enforcement holds the key.",
+    "hashDecodeFailed": "(message decoding failed)",
+    "hashscan": "Open in HashScan →"
+  },
   "report": {
     "title": "Submit Anonymous Report",
     "subtitle": "Your identity is protected • All data is encrypted in the browser",
@@ -22,6 +41,7 @@
     },
     "submit": "Submit Report",
     "submitting": "Submitting…",
+    "powComputing": "🔐 Computing proof…",
     "success": "Report submitted",
     "trackingSeed": "Tracking code",
     "trackingSeedHelp": "Save this code to check your report status",

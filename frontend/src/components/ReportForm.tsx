@@ -129,7 +129,7 @@ export function ReportForm() {
           {attachedFile && <button type="button" onClick={clearAttachment} disabled={isDisabled}>{t("removeFile")}</button>}
           {isSubmitting && uploadProgress > 0 && <div><div style={{ width: `${uploadProgress}%` }} /></div>}
           {(["police", "nss", "anti-corruption"] as const).map(dest => <button key={dest} type="button" onClick={() => setDestination(dest)} disabled={isDisabled}>{t(`destinations.${dest}`)}</button>)}
-          <button type="submit" disabled={isDisabled}>{powStage ? "🔐 Ապացույցի հաշվարկ…" : isSubmitting ? t("submitting") : t("submit")}</button>
+          <button type="submit" disabled={isDisabled}>{powStage ? t("powComputing") : isSubmitting ? t("submitting") : t("submit")}</button>
         </form>
       )}
     </div>

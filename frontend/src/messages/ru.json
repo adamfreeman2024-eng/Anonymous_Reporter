@@ -1,0 +1,74 @@
+{
+  "app": {
+    "title": "Анонимное сообщение — Zero-Trust Anonymous Reporter",
+    "description": "Министерство юстиции Республики Армения"
+  },
+  "nav": {
+    "home": "Главная",
+    "track": "Проверить сообщение"
+  },
+  "tracking": {
+    "title": "Tracking Seed",
+    "subtitle": "Проверьте, что ваше сообщение зарегистрировано в Hedera — только хэш, без содержимого",
+    "placeholder": "напр. 1723123456.789012345@42",
+    "check": "Проверить",
+    "checking": "Проверка…",
+    "emptySeed": "Введите tracking seed.",
+    "failed": "Проверка не удалась.",
+    "found": "Сообщение найдено в Hedera",
+    "notFound": "Сообщение не найдено для этого topic и sequence",
+    "notFoundHelp": "Проверьте seed — формат: consensusTimestamp@sequenceNumber. Возможно, хэш ещё не достиг консенсуса, или seed указан неверно.",
+    "timestamp": "Consensus timestamp",
+    "sequence": "Sequence",
+    "transaction": "Transaction",
+    "hashLabel": "SHA-256 хэш в блокчейне",
+    "hashHelp": "Сравните с сохранённым вами хэшем. Его невозможно обратить в содержимое — ключ есть только у правоохранительных органов.",
+    "hashDecodeFailed": "(не удалось декодировать сообщение)",
+    "hashscan": "Открыть в HashScan →"
+  },
+  "report": {
+    "title": "Отправить анонимное сообщение",
+    "subtitle": "Ваша личность защищена • Все данные шифруются в браузере",
+    "messageLabel": "Текст сообщения",
+    "messagePlaceholder": "Опишите случай как можно подробнее…",
+    "attachFile": "Прикрепить изображение",
+    "removeFile": "Удалить",
+    "destinationLabel": "Отправить",
+    "destinations": {
+      "police": "Полиция",
+      "nss": "СНБ",
+      "anti-corruption": "Антикоррупционный комитет"
+    },
+    "submit": "Отправить сообщение",
+    "submitting": "Отправка…",
+    "powComputing": "🔐 Вычисление доказательства…",
+    "success": "Сообщение отправлено",
+    "trackingSeed": "Код отслеживания",
+    "trackingSeedHelp": "Сохраните этот код, чтобы проверять статус вашего сообщения",
+    "newReport": "Новое сообщение"
+  },
+  "errors": {
+    "emptyMessage": "Введите текст сообщения",
+    "encryptionNotReady": "Шифрование ещё не готово. Подождите или обновите страницу",
+    "keyNotConfigured": "Ключ шифрования не настроен. Обратитесь к администратору",
+    "invalidFileType": "Принимаются только изображения JPEG и PNG",
+    "fileTooLarge": "Изображение превышает лимит 10 МБ",
+    "uploadFailed": "Не удалось загрузить изображение",
+    "serverError": "Ошибка сервера. Попробуйте позже",
+    "networkError": "Ошибка сети. Проверьте соединение и попробуйте снова",
+    "tooManyRequests": "Слишком много запросов. Подождите и попробуйте снова",
+    "invalidPayload": "Недопустимое сообщение",
+    "invalidDestination": "Недопустимый получатель",
+    "internalRejected": "Сообщение отклонено внутренней сетью",
+    "generic": "Произошла непредвиденная ошибка. Попробуйте позже"
+  },
+  "theme": {
+    "light": "Светлая",
+    "dark": "Тёмная",
+    "toggle": "Переключить тему"
+  },
+  "footer": {
+    "hedera": "Защищено Hedera Hashgraph",
+    "encryption": "E2EE-шифрование • RSA-2048 + AES-256-GCM"
+  }
+}

@@ -7,6 +7,25 @@
     "home": "Գլխավոր",
     "track": "Հետևել հաղորդմանը"
   },
+  "tracking": {
+    "title": "Tracking Seed",
+    "subtitle": "Ստուգիր, որ քո հաղորդումը գրանցված է Hedera-ում — միայն hash, առանց բովանդակության",
+    "placeholder": "օր. 1723123456.789012345@42",
+    "check": "Ստուգել",
+    "checking": "Ստուգում…",
+    "emptySeed": "Մուտքագրիր tracking seed-ը։",
+    "failed": "Ստուգումը ձախողվեց։",
+    "found": "Հաղորդումը գտնված է Hedera-ում",
+    "notFound": "Հաղորդումը չի գտնվել այս topic-ում այս sequence-ով",
+    "notFoundHelp": "Ստուգիր seed-ը. ձևաչափը՝ consensusTimestamp@sequenceNumber: hash-ը կարող է չհասցրած լինել consensus-ի, կամ seed-ը սխալ է:",
+    "timestamp": "Consensus timestamp",
+    "sequence": "Sequence",
+    "transaction": "Transaction",
+    "hashLabel": "On-chain SHA-256 hash",
+    "hashHelp": "Համեմատիր քո պահած hash-ի հետ։ Այն հնարավոր չէ վերածել բովանդակության. բանալին միայն իրավապահ մարմնի մոտ է:",
+    "hashDecodeFailed": "(message decoding failed)",
+    "hashscan": "Բացել HashScan-ում →"
+  },
   "report": {
     "title": "Ուղարկել անանուն հաղորդում",
     "subtitle": "Ձեր ինքնությունը պաշտպանված է • Բոլոր տվյալները գաղտնագրվում են բրաուզերում",
@@ -22,6 +41,7 @@
     },
     "submit": "Ուղարկել հաղորդումը",
     "submitting": "Ուղարկվում է…",
+    "powComputing": "🔐 Ապացույցի հաշվարկ…",
     "success": "Հաղորդումն ուղարկված է",
     "trackingSeed": "Հետևման կոդ",
     "trackingSeedHelp": "Պահպանեք այս կոդը՝ ձեր հաղորդման կարգավիճակը ստուգելու համար",

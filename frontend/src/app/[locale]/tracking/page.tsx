@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 const API =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
@@ -19,6 +20,7 @@ interface TrackingResponse {
 }
 
 export default function TrackingPage() {
+  const t = useTranslations("tracking");
   const [seed, setSeed] = useState("");
   const [result, setResult] = useState<TrackingResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -27,7 +29,7 @@ export default function TrackingPage() {
   const check = async () => {
     const trimmed = seed.trim();
     if (!trimmed) {
-      setError("Մուտքագրիր tracking seed-ը։");
+      setError(t("emptySeed"));
       return;
     }
     setLoading(true);
@@ -43,7 +45,7 @@ export default function TrackingPage() {
       }
       setResult(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Ստուգումը ձախողվեց։");
+      setError(e instanceof Error ? e.message : t("failed"));
     } finally {
       setLoading(false);
     }
@@ -60,7 +62,7 @@ export default function TrackingPage() {
         Tracking <span className="text-red-500">Seed</span>
       </h1>
       <p className="text-zinc-500 text-sm mt-1">
-        Ստուգիր, որ քո հաղորդումը գրանցված է Hedera-ում — միայն hash, առանց բովանդակության
+        {t("subtitle")}
       </p>
 
       <div className="mt-6 flex gap-3 flex-col sm:flex-row">
@@ -70,7 +72,7 @@ export default function TrackingPage() {
           onKeyDown={(e) => {
             if (e.key === "Enter") void check();
           }}
-          placeholder="օր. 1723123456.789012345@42"
+          placeholder={t("placeholder")}
           className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm outline-none focus:border-red-500 flex-1 max-w-lg font-mono"
         />
         <button
@@ -78,7 +80,7 @@ export default function TrackingPage() {
           disabled={loading}
           className="bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-sm font-bold rounded-lg px-6 py-2"
         >
-          {loading ? "Ստուգում…" : "Ստուգել"}
+          {loading ? t("checking") : t("check")}
         </button>
       </div>
 
@@ -91,32 +93,30 @@ export default function TrackingPage() {
           {result.found ? (
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-4">
               <p className="text-emerald-400 font-bold">
-                ✅ Հաղորդումը գտնված է Hedera-ում
+                ✅ {t("found")}
               </p>
               <div className="text-sm text-zinc-400">
                 <div>
-                  <span className="text-zinc-500">Consensus timestamp:</span>{" "}
+                  <span className="text-zinc-500">{t("timestamp")}:</span>{" "}
                   <span className="font-mono text-zinc-200">{result.consensusTimestamp}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500">Sequence:</span>{" "}
+                  <span className="text-zinc-500">{t("sequence")}:</span>{" "}
                   <span className="font-mono text-zinc-200">{result.sequenceNumber}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500">Transaction:</span>{" "}
+                  <span className="text-zinc-500">{t("transaction")}:</span>{" "}
                   <span className="font-mono text-zinc-200">{result.transactionId}</span>
                 </div>
               </div>
               <div>
                 <p className="text-zinc-500 text-sm mb-1">
-                  On-chain SHA-256 hash (համեմատիր քո պահածի հետ).
+                  {t("hashLabel")}.
                   <br />
-                  <span className="text-zinc-600">
-                    Այս hash-ը հնարավոր չէ վերածել բովանդակության. բանալին միայն իրավապահ մարմնի մոտ է:
-                  </span>
+                  <span className="text-zinc-600">{t("hashHelp")}</span>
                 </p>
                 <code className="block bg-black border border-zinc-800 rounded-lg p-3 text-xs text-emerald-300 font-mono break-all">
-                  {result.payloadHash ?? "(message decoding failed)"}
+                  {result.payloadHash ?? t("hashDecodeFailed")}
                 </code>
               </div>
               {hashscanUrl && (
@@ -126,18 +126,17 @@ export default function TrackingPage() {
                   rel="noreferrer"
                   className="inline-block text-sm text-red-400 hover:text-red-300 underline"
                 >
-                  Բացել HashScan-ում →
+                  {t("hashscan")}
                 </a>
               )}
             </div>
           ) : (
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
               <p className="text-amber-400 font-bold">
-                ⚠️ Հաղորդումը չի գտնվել այս topic-ում այս sequence-ով
+                ⚠️ {t("notFound")}
               </p>
               <p className="text-zinc-500 text-sm mt-2">
-                Ստուգիր seed-ը. ձևաչափը՝ <code className="font-mono">consensusTimestamp@sequenceNumber</code>:
-                hash-ը կարող է չհասցրած լինել consensus-ի, կամ seed-ը սխալ է:
+                {t("notFoundHelp")}
               </p>
             </div>
           )}
