@@ -33,9 +33,11 @@ jobs:
       - name: Unit tests
         run: npm run test
 
-      - name: Coverage report (informational)
+      - name: Coverage gate (backend ≥ 60%)
         run: npm run test:coverage -w backend
-        continue-on-error: true
+        # B-6 (2026-08-09): coverage is a blocking gate, not informational.
+        # Thresholds configured in backend/vitest.config.ts (lines/functions/
+        # branches/statements ≥ 60/50/60/60). Current: ~71% all-files.
 
       - name: Build (backend)
         run: npm run build -w backend
@@ -58,5 +60,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: npm audit (critical blocks)
-        run: npm audit --audit-level=critical
+      - name: npm audit (critical blocks, high warns)
+        run: |
+          npm audit --audit-level=critical || exit 1
+          npm audit --audit-level=high || echo "::warning::HIGH vulns present — see Watch List (transitive @hashgraph/sdk elliptic/image-size, no fix yet)"
+        # B-6: CRITICAL blocks CI; HIGH is reported but non-blocking because the
+        # remaining HIGHs are transitive via @hashgraph/sdk (elliptic, image-size)
+        # with no available fix — tracked in STATE.md Watch List.
