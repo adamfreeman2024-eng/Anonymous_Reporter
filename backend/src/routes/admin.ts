@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from "express";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import { timingSafeEqual, createHash } from "node:crypto";
 
 /**
@@ -44,33 +45,44 @@ adminRouter.get("/stats", async (req: Request, res: Response) => {
   }
 
   try {
-    const path = process.env.AUDIT_LOG_PATH || "data/audit.jsonl";
-    const raw = await readFile(path, "utf8").catch(() => "");
-    const lines = raw.split("\n").filter(Boolean);
-
+    // B-4: aggregate across rotated daily audit files (audit-YYYY-MM-DD.jsonl),
+    // or the single explicit AUDIT_LOG_PATH when set.
+    const explicit = process.env.AUDIT_LOG_PATH;
+    const dir = explicit ? dirname(explicit) : "data";
+    const names = explicit
+      ? [explicit]
+      : (await readdir(dir).catch(() => []))
+          .filter((n) => /^audit-\d{4}-\d{2}-\d{2}\.jsonl$/.test(n))
+          .sort();
+    let total = 0;
     const byEvent: Record<string, number> = {};
     const byDestination: Record<string, number> = {};
     let lastTimestamp: string | null = null;
-
-    for (const line of lines) {
-      try {
-        const entry = JSON.parse(line) as {
-          event?: string;
-          destination?: string;
-          ts?: string;
-        };
-        if (entry.event) byEvent[entry.event] = (byEvent[entry.event] ?? 0) + 1;
-        if (entry.destination)
-          byDestination[entry.destination] = (byDestination[entry.destination] ?? 0) + 1;
-        if (entry.ts) lastTimestamp = entry.ts;
-      } catch {
-        // skip malformed lines
+    for (const name of names) {
+      const raw = await readFile(join(dir, name), "utf8").catch(() => "");
+      const lines = raw.split("\n").filter(Boolean);
+      total += lines.length;
+      for (const line of lines) {
+        try {
+          const entry = JSON.parse(line) as {
+            event?: string;
+            destination?: string;
+            ts?: string;
+          };
+          if (entry.event) byEvent[entry.event] = (byEvent[entry.event] ?? 0) + 1;
+          if (entry.destination)
+            byDestination[entry.destination] = (byDestination[entry.destination] ?? 0) + 1;
+          if (entry.ts) lastTimestamp = entry.ts;
+        } catch {
+          // skip malformed lines
+        }
       }
     }
 
     res.json({
       ok: true,
-      total: lines.length,
+      total,
+      files: names.length,
       byEvent,
       byDestination,
       lastSubmission: lastTimestamp,
