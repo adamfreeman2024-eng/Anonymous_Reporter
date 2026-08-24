@@ -82,11 +82,13 @@ describe("verifyProofOfWork", () => {
   });
 
   it("respects a higher difficulty", () => {
+    // 20-bit mining is ~16x rarer than 16-bit — allow a generous timeout so the
+    // test stays deterministic on slow/loaded CI boxes instead of timing out.
     const nonce16 = mine(PAYLOAD, 16);
     // A 16-bit nonce should (almost certainly) fail a 20-bit check.
     expect(verifyProofOfWork(PAYLOAD, nonce16, 20)).toBe(false);
 
     const nonce20 = mine(PAYLOAD, 20);
     expect(verifyProofOfWork(PAYLOAD, nonce20, 20)).toBe(true);
-  });
+  }, 60_000);
 });
