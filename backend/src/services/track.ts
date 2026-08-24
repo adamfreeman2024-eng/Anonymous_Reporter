@@ -66,11 +66,44 @@ export async function lookupTrackingSeed(
     `${mirrorNodeBaseUrl(network)}/api/v1/topics/${topicId}` +
     `/messages/${parsed.sequenceNumber}`;
 
+  // B-8 (2026-08-24): mirror nodes rate-limit bursts (HTTP 429/503). Retry
+  // with exponential backoff (2 attempts extra, base 400ms) so the track page
+  // survives a throttled mirror instead of erroring on the first 429.
+  const maxRetries = 3;
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      if (attempt > 0) {
+        await new Promise((r) => setTimeout(r, 400 * 2 ** (attempt - 1)));
+      }
+      return await fetchOnce(url, topicId, network);
+    } catch (err) {
+      lastError = err;
+      if (err instanceof TrackError && err.statusCode === 400) throw err; // user input — no retry
+      const retryable =
+        err instanceof TrackError &&
+        (err.statusCode === 502 || err.statusCode === 503);
+      if (!retryable || attempt === maxRetries - 1) throw err;
+    }
+  }
+  throw lastError;
+}
+
+async function fetchOnce(
+  url: string,
+  topicId: string,
+  network: string,
+): Promise<TrackingResult> {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
 
     if (res.status === 404) {
       return { found: false, topicId, network };
+    }
+    if (res.status === 429 || res.status === 503) {
+      // rate-limited / temporarily unavailable → retryable (503)
+      throw new TrackError(`Mirror node throttled (HTTP ${res.status}).`, 503);
     }
     if (!res.ok) {
       throw new TrackError(`Mirror node error (HTTP ${res.status}).`, 502);
