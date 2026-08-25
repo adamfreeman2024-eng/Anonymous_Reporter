@@ -1,5 +1,6 @@
 import { appendFile, mkdir, readdir, rm, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { archiveFile } from "./audit-archive.js";
 
 /**
  * Audit trail service — append-only JSONL log of HCS submissions.
@@ -63,8 +64,12 @@ export async function maybeCleanupOldAudits(now = Date.now()): Promise<void> {
       const full = join(dir, name);
       const st = await stat(full).catch(() => null);
       if (st && st.mtimeMs < cutoff) {
+        // B-4b (2026-08-25): archive (gzip) before removal — retention data must
+        // not be lost; if archiving fails the raw file is KEPT (safe direction).
+        const archived = await archiveFile(full, dir);
+        if (!archived) continue;
         await rm(full, { force: true }).catch(() => undefined);
-        console.log(`[audit] archived/removed ${name} (past ${retentionDays()}d retention)`);
+        console.log(`[audit] archived ${name} → ${archived} (past ${retentionDays()}d retention)`);
       }
     }
   } catch (err) {
