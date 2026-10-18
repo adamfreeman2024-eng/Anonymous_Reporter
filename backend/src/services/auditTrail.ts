@@ -43,8 +43,9 @@ const CLEANUP_EVERY_MS = 6 * 60 * 60 * 1000; // every 6h
 
 export interface AuditEntry {
   ts: string;
-  event: "hcs_submitted" | "hcs_failed";
-  payloadHash: string;
+  event: "hcs_submitted" | "hcs_failed" | "admin_read";
+  payloadHash?: string;
+  role?: "operator" | "viewer";
   trackingSeed?: string;
   destination?: string;
   transactionId?: string;

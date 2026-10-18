@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { readFile, readdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { timingSafeEqual, createHash } from "node:crypto";
+import { appendAudit } from "../services/auditTrail.js";
 
 /**
  * Admin stats (Phase 4 — Ministry dashboard, skeleton).
@@ -17,32 +18,51 @@ function digest(value: string): Buffer {
 }
 
 export function isAuthorized(req: Request): boolean {
-  const key = process.env.OPERATOR_API_KEY?.trim();
-  const isProduction = process.env.NODE_ENV === "production";
+  return adminRole(req) !== null;
+}
 
-  if (!key) {
-    // Dev mode: open. Production: fail closed.
-    return !isProduction;
-  }
+export type AdminRole = "operator" | "viewer";
 
+function bearerToken(req: Request): string {
   const header = req.headers.authorization || "";
-  const token = header.startsWith("Bearer ") ? header.slice("Bearer ".length) : header;
+  return header.startsWith("Bearer ") ? header.slice("Bearer ".length) : header;
+}
 
-  if (!token) {
-    return false;
-  }
-
-  // Constant-time comparison — prevents timing side-channel on the admin key.
+function tokenMatches(token: string, key: string | undefined): boolean {
+  if (!key || !token) return false;
   const a = digest(token);
   const b = digest(key);
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
+/** Operator key wins. Viewer key is read-only. Production with no keys fails closed. */
+export function adminRole(req: Request): AdminRole | null {
+  const operator = process.env.OPERATOR_API_KEY?.trim();
+  const viewer = process.env.ADMIN_VIEWER_KEY?.trim();
+  const isProduction = process.env.NODE_ENV === "production";
+  const token = bearerToken(req);
+
+  if (!operator && !viewer) return isProduction ? null : "operator";
+  if (tokenMatches(token, operator)) return "operator";
+  if (tokenMatches(token, viewer)) return "viewer";
+  return null;
+}
+
+export function isOperator(req: Request): boolean {
+  return adminRole(req) === "operator";
+}
+
 adminRouter.get("/stats", async (req: Request, res: Response) => {
-  if (!isAuthorized(req)) {
+  const role = adminRole(req);
+  if (!role) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  void appendAudit({
+    ts: new Date().toISOString(),
+    event: "admin_read",
+    role,
+  });
 
   try {
     // B-4: aggregate across rotated daily audit files (audit-YYYY-MM-DD.jsonl),
@@ -81,6 +101,7 @@ adminRouter.get("/stats", async (req: Request, res: Response) => {
 
     res.json({
       ok: true,
+      role,
       total,
       files: names.length,
       byEvent,

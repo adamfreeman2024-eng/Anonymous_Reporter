@@ -43,12 +43,12 @@ table above. Residuals (A3 advisory without fix, A6, A7) are documented and
 reviewed below.
 
 ### Phase B — Deployment & ops (next, agent + operator)
+- [x] B-3 Health/readiness split: `/health` (liveness) + `/health/ready` (MinIO + Hedera client init status).
+- [x] B-4 Audit log rotation policy (daily JSONL archive, retention 2 years — ministry requirement). Gzip archive before delete, 2026-08-25.
+- [x] B-5 Structured logging (JSON, no identity fields) + request-id in logs only.
+- [x] B-6 CI hardening: `npm audit` blocking on CRITICAL; backend coverage gate ≥60.
 - [ ] B-1 Reverse proxy + TLS for frontend and backend (nginx/caddy on the VPS, Let's Encrypt).
 - [ ] B-2 Secrets: single `.env` (gitignored) for compose; document `OPERATOR_API_KEY` ceremony (random ≥32 bytes).
-- [ ] B-3 Health/readiness split: `/health` (liveness) + `/health/ready` (MinIO + Hedera client init status).
-- [ ] B-4 Audit log rotation policy (daily JSONL archive, retention 2 years — ministry requirement).
-- [ ] B-5 Structured logging (JSON, no identity fields) + request-id in logs only.
-- [ ] B-6 CI hardening: make `npm audit` a blocking gate on new HIGH/CRITICAL; add backend coverage report.
 - [ ] B-7 Load test / rate-limit tuning per destination; abuse monitoring (Hedera cost spikes).
 
 ### Phase C — Zero-trust network topology (architectural)
@@ -60,7 +60,7 @@ reviewed below.
 ### Phase D — Mainnet & Ministry (operator/ministry involvement)
 - [ ] D-1 Create the official HCS topic on mainnet; set `HEDERA_NETWORK=mainnet`, `HEDERA_TOPIC_ID=<official>`.
 - [ ] D-2 HSM-based signing for the operator key (ministry HSMs; SDK `Client.setOperator` with HSM-backed provider or pre-signed tx pattern).
-- [ ] D-3 Admin dashboard hardening: role-based access (viewer/operator), audit of admin reads, disable dev-open mode.
+- [ ] D-3 Admin dashboard hardening: viewer/operator code landed 2026-10-18 (`ADMIN_VIEWER_KEY`, `admin_read` audit, production fails closed). Ministry RBAC and HSM still pending.
 - [ ] D-4 Key ceremony + offline backup (shamir/HSM), documented runbook, named custodians.
 - [ ] D-5 Legal/process: data-retention policy, SimpleX relay ops, incident-response runbook.
 

@@ -4,7 +4,7 @@
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import type { Request } from "express";
-import { isAuthorized } from "../routes/admin.js";
+import { isAuthorized, adminRole } from "../routes/admin.js";
 
 const ORIGINAL_ENV = { ...process.env };
 
@@ -16,6 +16,7 @@ function makeReq(authHeader?: string): Request {
 
 beforeEach(() => {
   delete process.env.OPERATOR_API_KEY;
+  delete process.env.ADMIN_VIEWER_KEY;
   delete process.env.NODE_ENV;
 });
 
@@ -54,5 +55,19 @@ describe("admin isAuthorized", () => {
   it("accepts a bare key (non-Bearer) for backward compatibility", () => {
     process.env.OPERATOR_API_KEY = "s3cret-admin-key";
     expect(isAuthorized(makeReq("s3cret-admin-key"))).toBe(true);
+  });
+
+  it("accepts a viewer key as read-only, not operator", () => {
+    process.env.NODE_ENV = "production";
+    process.env.OPERATOR_API_KEY = "operator-key";
+    process.env.ADMIN_VIEWER_KEY = "viewer-key";
+    expect(adminRole(makeReq("Bearer viewer-key"))).toBe("viewer");
+    expect(adminRole(makeReq("Bearer operator-key"))).toBe("operator");
+  });
+
+  it("fails closed in production when only a viewer key exists and the token is wrong", () => {
+    process.env.NODE_ENV = "production";
+    process.env.ADMIN_VIEWER_KEY = "viewer-key";
+    expect(isAuthorized(makeReq("Bearer nope"))).toBe(false);
   });
 });
